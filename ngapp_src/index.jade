@@ -1,0 +1,43 @@
+doctype html
+html
+  head
+    meta(charset="utf-8")
+    meta(http-equiv="X-UA-Compatible",content="IE=edge")
+    meta(name="fragment",content="!")
+    title Reporter
+    link(rel='stylesheet', href='index.css')
+    
+  body.container(ng-app="reporterApp",ng-controller="appCtrl")
+    md-toolbar.md-warn(ng-if="failed.length > 0")
+      .md-toolbar-tools
+        .md-toolbar-item
+          span.md-flex Errors: {{failed.length}}
+
+    md-content.md-padding
+      md-list
+        md-item(ng-repeat="item in failed")
+          md-item-content
+            .md-tile-content 
+              p {{item.levels.join(" ")}}
+              h4 {{item.title}}
+              p(ng-repeat="line in splitNewLine(item.failure)" ng-class="{'red':$index==1, 'ng-cloak':$first}") {{line}}
+            .md-tile-right {{item.duration}} ms
+    md-toolbar.md-primary
+      .md-toolbar-tools 
+        .md-toolbar-item
+            span.md-flex Tests: {{tests}}
+    md-content.md-padding
+      tree-mendous(nodes="tree.branches")
+        div.branch(ng-repeat="branch in nodes") 
+          span {{branch.name}} ({{branch.duration}} ms)
+          div.box(
+            ng-repeat="leaf in branch.leaves"
+            ng-class="{'red-bg': leaf.failure, 'blue-bg': !leaf.failure}"
+          )
+            md-tooltip ({{leaf.duration}} ms) {{leaf.title}} 
+          div
+            div.leaf.red(ng-repeat="leaf in branch.leaves | hasProperty:'failure'") 
+              span {{leaf.title}} ({{leaf.duration}} ms)
+          tree-branch(nodes="branch.branches")
+
+    script(src='bundle.js')

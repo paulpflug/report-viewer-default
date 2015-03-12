@@ -1,0 +1,65 @@
+{
+  "name": "report-viewer-default",
+  "description": "The default view for report-viewer",
+  "version": "0.0.1",
+  "homepage": "https://github.com/paulpflug/",
+  "author": {
+    "name": "Paul Pflugradt",
+    "email": "paul.pflugradt@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/paulpflug/report-viewer-default"
+  },
+  "engines": {
+    "node": "*"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "optional": "^0.1.3",
+    "read-dir-simple": "0.0.2"
+  },
+  "devDependencies": {
+    "angular": "^1.3.14",
+    "angular-aria": "^1.3.14",
+    "angular-treemendous": "^0.2.3",
+    "angular-material": "^0.8.3",
+    "socket.io-client": "^1.3.5",
+    "browserify": "^9.0.3",
+    "browserify-css": "^0.4.0",
+    "browserify-ngannotate": "^0.7.1",
+    "coffee-script": "^1.7.1",
+    "jade": "^1.7.0",
+    "minifyify": "^6.3.2",
+    "nodemon": "^1.3.7",
+    "parallelshell": "^1.1.0",
+    "rimraf": "^2.3.1",
+    "stylus": "^0.49.3",
+    "watch": "^0.14.0",
+    "watchify": "^2.4.0"
+  },
+  "keywords": [
+    "socket.io",
+    "mocha",
+    "report",
+    "viewer",
+    "xunit",
+    "browser",
+    "live",
+    "debug"
+  ],
+  "readmeFilename": "README.md",
+  "scripts": {
+    "clean": "rimraf ngapp/ && mkdir ngapp",
+    "prebuild": "npm run clean",
+    "build:script": "coffee --bare --output ngapp/ --compile ngapp_src/index.coffee && browserify ngapp/index.js -d -t browserify-ngannotate -t browserify-css -p [minifyify --compressPath . --map index.js.map --output ngapp/index.js.map] -o ngapp/bundle.js",
+    "build:styles": "stylus ngapp_src/*.styl -m -o ngapp/",
+    "build:markup": "jade ngapp_src/*.jade -o ngapp/",
+    "build": "npm run build:styles && npm run build:markup && npm run build:script",
+    "watch": "parallelshell \"npm run watch:styles -s\" \"npm run watch:markup -s\" \"npm run watch:coffee -s\" \"npm run watch:watchify -s\"",
+    "watch:coffee": "nodemon -q -w ngapp_src/ --ext 'coffee' --exec 'coffee --bare --output ngapp/ --compile ngapp_src/index.coffee'",
+    "watch:watchify": "watchify ngapp/index.js -d -t browserify-ngannotate -t browserify-css -p [minifyify --compressPath . --map index.js.map --output ngapp/index.js.map] -o ngapp/bundle.js",
+    "watch:styles": "nodemon -q -w ngapp_src/ --ext 'styl' --exec 'npm run build:styles'",
+    "watch:markup": "nodemon -q -w ngapp_src/ --ext 'jade' --exec 'npm run build:markup'"
+  }
+}
