@@ -26,9 +26,10 @@ reporterApp.controller "appCtrl", ($scope,$mdToast) ->
   parse = (data) ->
     if data and data[0]
       if data[0] == "start"
-          $scope.data = []
-          $scope.failed = []
-          count = data[0][1].total
+        $scope.data = []
+        $scope.failed = []
+        $scope.tree = {branches:[]}
+        count = data[0][1].total
       else if data[0] == "fail"
         $scope.failed.push(data[1])
       else if data[0] == "pass"

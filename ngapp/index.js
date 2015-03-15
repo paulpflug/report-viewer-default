@@ -41,6 +41,9 @@ reporterApp.controller("appCtrl", function($scope, $mdToast) {
       if (data[0] === "start") {
         $scope.data = [];
         $scope.failed = [];
+        $scope.tree = {
+          branches: []
+        };
         count = data[0][1].total;
       } else if (data[0] === "fail") {
         $scope.failed.push(data[1]);

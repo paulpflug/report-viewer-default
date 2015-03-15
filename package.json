@@ -1,7 +1,7 @@
 {
   "name": "report-viewer-default",
   "description": "The default view for report-viewer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "homepage": "https://github.com/paulpflug/",
   "author": {
     "name": "Paul Pflugradt",
