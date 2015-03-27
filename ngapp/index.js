@@ -17,14 +17,19 @@ require("./index.css");
 
 reporterApp = angular.module("reporterApp", [ngmaterial, "treemendous"]);
 
-reporterApp.controller("appCtrl", function($scope, $mdToast) {
-  var addtotree, levels, parse, reload, socket;
+reporterApp.controller("appCtrl", function($scope, $mdToast, $sce) {
+  var addtotree, levels, loaded, parse, parseConsole, reload, reset, socket;
   socket = io();
-  $scope.data = [];
-  $scope.tree = {
-    branches: []
+  reset = function() {
+    $scope.data = [];
+    $scope.tree = {
+      level: [],
+      branches: []
+    };
+    $scope.failed = [];
+    return $scope.console = [];
   };
-  $scope.failed = [];
+  reset();
   levels = [];
   $scope.count = 0;
   $scope.tests = 0;
@@ -36,14 +41,10 @@ reporterApp.controller("appCtrl", function($scope, $mdToast) {
     return string.split("\n");
   };
   parse = function(data) {
-    var count, difference, i, identifier, len, lvl, newlevels;
+    var count, difference, identifier, j, len, lvl, newlevels;
     if (data && data[0]) {
       if (data[0] === "start") {
-        $scope.data = [];
-        $scope.failed = [];
-        $scope.tree = {
-          branches: []
-        };
+        reset();
         count = data[0][1].total;
       } else if (data[0] === "fail") {
         $scope.failed.push(data[1]);
@@ -53,39 +54,44 @@ reporterApp.controller("appCtrl", function($scope, $mdToast) {
         $scope.count = $scope.data.length;
         $scope.tests = data[1].tests;
         $mdToast.show($mdToast.simple().content('Test finished'));
+        loaded();
       }
       if (data[0] === "fail" || data[0] === "pass") {
-        identifier = data[1].fullTitle.replace(data[1].title, "").replace(/\s+$/, "");
-        difference = identifier;
-        newlevels = [];
-        for (i = 0, len = levels.length; i < len; i++) {
-          lvl = levels[i];
-          if (identifier.indexOf(lvl) > -1) {
-            difference = difference.replace(lvl, "").replace(/^s+/, "");
-            newlevels.push(lvl);
+        if (data[1].levels) {
+          return data[1];
+        } else {
+          identifier = data[1].fullTitle.replace(data[1].title, "").replace(/\s+$/, "");
+          difference = identifier;
+          newlevels = [];
+          for (j = 0, len = levels.length; j < len; j++) {
+            lvl = levels[j];
+            if (identifier.indexOf(lvl) > -1) {
+              difference = difference.replace(lvl, "").replace(/^s+/, "");
+              newlevels.push(lvl);
+            }
           }
+          if (difference) {
+            newlevels.push(difference);
+          }
+          data[1].levels = newlevels;
+          levels = newlevels.slice();
+          return data[1];
         }
-        if (difference) {
-          newlevels.push(difference);
-        }
-        data[1].levels = newlevels;
-        levels = newlevels.slice();
-        return data[1];
       }
     }
   };
   addtotree = function(data) {
-    var branch, current, found, i, j, last, len, len1, lvl, newBranch, ref, ref1;
+    var branch, current, found, j, k, last, len, len1, level, lvl, newBranch, ref, ref1;
     if (data.levels) {
       current = $scope.tree;
       last = null;
       ref = data.levels;
-      for (i = 0, len = ref.length; i < len; i++) {
-        lvl = ref[i];
+      for (j = 0, len = ref.length; j < len; j++) {
+        lvl = ref[j];
         found = false;
         ref1 = current.branches;
-        for (j = 0, len1 = ref1.length; j < len1; j++) {
-          branch = ref1[j];
+        for (k = 0, len1 = ref1.length; k < len1; k++) {
+          branch = ref1[k];
           if (branch.name === lvl) {
             last = current;
             current = branch;
@@ -95,32 +101,31 @@ reporterApp.controller("appCtrl", function($scope, $mdToast) {
         }
         if (!found) {
           last = current;
+          level = current.level.slice(0);
+          level.push(level.length);
           newBranch = {
             name: lvl,
             branches: [],
             leaves: [],
-            duration: 0
+            level: level
           };
           current.branches.push(newBranch);
           current = newBranch;
         }
       }
-      current.leaves.push(data);
-      return current.duration += data.duration;
+      return current.leaves.push(data);
     }
   };
-  reload = function() {
-    $scope.data = [];
-    $scope.tree = {
-      branches: []
-    };
-    return socket.emit("data");
+  parseConsole = function(consoleChunk) {
+    if (!consoleChunk.text) {
+      return $sce.trustAsHtml("<br>");
+    }
+    return $sce.trustAsHtml(consoleChunk.text.replace(/ /g, "&nbsp;"));
   };
-  reload();
   socket.on("data", function(data) {
-    var dataChunk, i, len, parsed;
-    for (i = 0, len = data.length; i < len; i++) {
-      dataChunk = data[i];
+    var dataChunk, j, len, parsed;
+    for (j = 0, len = data.length; j < len; j++) {
+      dataChunk = data[j];
       parsed = parse(dataChunk);
       if (parsed) {
         addtotree(parsed);
@@ -136,18 +141,54 @@ reporterApp.controller("appCtrl", function($scope, $mdToast) {
     }
     return $scope.$$phase || $scope.$digest();
   });
-  return socket.on("dataConsole", function(dataConsole) {
-    return console.log("From console: " + dataConsole);
+  socket.on("console", function(console) {
+    var consoleChunk, i, j, len;
+    for (i = j = 0, len = console.length; j < len; i = ++j) {
+      consoleChunk = console[i];
+      consoleChunk.id = i;
+      consoleChunk.text = parseConsole(consoleChunk);
+      $scope.console.push(consoleChunk);
+    }
+    return $scope.$$phase || $scope.$digest();
   });
+  socket.on("consoleChunk", function(consoleChunk) {
+    consoleChunk.id = $scope.console.length;
+    consoleChunk.text = parseConsole(consoleChunk);
+    $scope.console.push(consoleChunk);
+    return $scope.$$phase || $scope.$digest();
+  });
+  socket.on("errorChunk", function(errorChunk) {
+    var d, j, len, ref, results;
+    ref = $scope.failed;
+    results = [];
+    for (j = 0, len = ref.length; j < len; j++) {
+      d = ref[j];
+      if (d.failure && d.failure === errorChunk.id) {
+        results.push(d.failure = errorChunk.text.join("\n"));
+      } else {
+        results.push(void 0);
+      }
+    }
+    return results;
+  });
+  reload = function() {
+    socket.emit("data");
+    return socket.emit("console");
+  };
+  loaded = function() {
+    return socket.emit("loaded");
+  };
+  reload();
+  return socket.on("reconnect", reload);
 });
 
 reporterApp.filter("hasProperty", function() {
   return function(array, property) {
-    var i, len, obj, result;
+    var j, len, obj, result;
     if (property) {
       result = [];
-      for (i = 0, len = array.length; i < len; i++) {
-        obj = array[i];
+      for (j = 0, len = array.length; j < len; j++) {
+        obj = array[j];
         if (obj[property]) {
           result.push(obj);
         }

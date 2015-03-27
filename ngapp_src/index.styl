@@ -1,27 +1,51 @@
+red = #C44D58
+blue = #4ECDC4
+darkblue = #556270
+green = #C7F464
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important;
 }
 .red
-  color: rgb(244,67,54);
-.red-bg
-  background: rgb(244,67,54);
-.blue-bg
-  background: rgb(63, 81, 181);
+  color: red
+.red-bg,
+md-toolbar.red-bg
+  background: red
+.blue-bg,
+md-toolbar.blue-bg
+  background: darkblue
 .box
   width: 24px
   height 24px
   margin-bottom: 2px
   margin-left 2px 
   display: inline-block;
-  position: relative;
-  top: 8px;
+  
 div.branch
-  margin-left: 16px
-div.branch > span
-  margin-right 16px
-div.leaf
-  margin-left: 16px
-  height: 30px
-div.leaf:first-child
-  margin-top:8px
+  padding: 2px
+div.leaves
+  display: inline
+span.branchname
+  color: darkblue
+  display: inline-block
+
 @import url("../node_modules/angular-material/angular-material.css")
+div.console
+  background: darkblue
+  color: white
+  height: 100%
+  padding: 4px
+  border-left: 2px solid white
+  overflow:scroll
+span.line
+  display: block
+span.line.level
+  color green
+span.line.pass
+  color blue
+span.line.fail
+  color red
+span.line.error
+  color red
+body,
+body>div
+  height:100%

@@ -7,13 +7,15 @@
   display: none !important;
 }
 .red {
-  color: #f44336;
+  color: #c44d58;
 }
-.red-bg {
-  background: #f44336;
+.red-bg,
+md-toolbar.red-bg {
+  background: #c44d58;
 }
-.blue-bg {
-  background: #3f51b5;
+.blue-bg,
+md-toolbar.blue-bg {
+  background: #556270;
 }
 .box {
   width: 24px;
@@ -21,21 +23,43 @@
   margin-bottom: 2px;
   margin-left: 2px;
   display: inline-block;
-  position: relative;
-  top: 8px;
 }
 div.branch {
-  margin-left: 16px;
+  padding: 2px;
 }
-div.branch > span {
-  margin-right: 16px;
+div.leaves {
+  display: inline;
 }
-div.leaf {
-  margin-left: 16px;
-  height: 30px;
-}
-div.leaf:first-child {
-  margin-top: 8px;
+span.branchname {
+  color: #556270;
+  display: inline-block;
 }
 @import url("../node_modules/angular-material/angular-material.css");
+div.console {
+  background: #556270;
+  color: #fff;
+  height: 100%;
+  padding: 4px;
+  border-left: 2px solid #fff;
+  overflow: scroll;
+}
+span.line {
+  display: block;
+}
+span.line.level {
+  color: #c7f464;
+}
+span.line.pass {
+  color: #4ecdc4;
+}
+span.line.fail {
+  color: #c44d58;
+}
+span.line.error {
+  color: #c44d58;
+}
+body,
+body>div {
+  height: 100%;
+}
 /*# sourceMappingURL=index.css.map */

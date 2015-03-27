@@ -8,36 +8,52 @@ html
     link(rel='stylesheet', href='index.css')
     
   body.container(ng-app="reporterApp",ng-controller="appCtrl")
-    md-toolbar.md-warn(ng-if="failed.length > 0")
-      .md-toolbar-tools
-        .md-toolbar-item
-          span.md-flex Errors: {{failed.length}}
+    div(layout="row")
+      div(flex)
+        
+        md-toolbar.red-bg(ng-if="failed.length > 0")
+          .md-toolbar-tools
+            .md-toolbar-item
+              span.md-flex Errors: {{failed.length}}
 
-    md-content.md-padding
-      md-list
-        md-item(ng-repeat="item in failed")
-          md-item-content
-            .md-tile-content 
-              p {{item.levels.join(" ")}}
-              h4 {{item.title}}
-              p(ng-repeat="line in splitNewLine(item.failure)" ng-class="{'red':$index==1, 'ng-cloak':$first}") {{line}}
-            .md-tile-right {{item.duration}} ms
-    md-toolbar.md-primary
-      .md-toolbar-tools 
-        .md-toolbar-item
-            span.md-flex Tests: {{tests}}
-    md-content.md-padding
-      tree-mendous(nodes="tree.branches")
-        div.branch(ng-repeat="branch in nodes") 
-          span {{branch.name}} ({{branch.duration}} ms)
-          div.box(
-            ng-repeat="leaf in branch.leaves"
-            ng-class="{'red-bg': leaf.failure, 'blue-bg': !leaf.failure}"
-          )
-            md-tooltip ({{leaf.duration}} ms) {{leaf.title}} 
-          div
-            div.leaf.red(ng-repeat="leaf in branch.leaves | hasProperty:'failure'") 
-              span {{leaf.title}} ({{leaf.duration}} ms)
-          tree-branch(nodes="branch.branches")
+        md-content.md-padding(ng-if="failed.length > 0")
+          md-list
+            md-item(ng-repeat="item in failed")
+              md-item-content
+                .md-tile-content 
+                  p {{item.levels.join(" ")}}
+                  h4 {{item.title}}
+                  p(ng-repeat="line in splitNewLine(item.failure)" ng-class="{'red':$index==0}") {{line}}
+                .md-tile-right(ng-if="item.duration") {{item.duration}} 
+        md-toolbar.blue-bg
+          .md-toolbar-tools 
+            .md-toolbar-item
+                span.md-flex Tests: {{tests}}
+        md-content.md-padding
+          tree-mendous(nodes="tree.branches")
+            div(ng-repeat="branch in nodes") 
+              div.branch
+                span(ng-repeat="lvl in branch.level")
+                  span(ng-if="lvl>0") &nbsp; &nbsp; 
+                span.branchname{{branch.name}} 
+                  span(ng-if="branch.duration") ({{branch.duration}})
+                div.leaves(ng-if="branch.leaves.length >0")
+                  br
+                  span(ng-repeat="lvl in branch.level")
+                    span(ng-if="lvl>0") &nbsp; &nbsp; 
+                  div.box(
+                    ng-repeat="leaf in branch.leaves"
+                    ng-class="{'red-bg': leaf.failure, 'blue-bg': !leaf.failure}"
+                  )
+                    md-tooltip 
+                      span(ng-if="leaf.duration") ({{leaf.duration}}) 
+                      span {{leaf.title}} 
+                  div
+                    div.leaf.red(ng-repeat="leaf in branch.leaves | hasProperty:'failure'") 
+                      span.leafname {{leaf.title}} 
+                        span(ng-if="leaf.duration") ({{leaf.duration}})
+              tree-branch(nodes="branch.branches")
+      div.console(flex)
+        span.line(ng-repeat="string in console", ng-bind-html="string.text",ng-class="string.type") 
 
     script(src='bundle.js')
