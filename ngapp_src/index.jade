@@ -15,6 +15,9 @@ html
           .md-toolbar-tools
             .md-toolbar-item
               span.md-flex Errors: {{failed.length}}
+            span(flex)
+            .md-toolbar-item(ng-if="isRestartable")
+              md-button.md-raised.md-flex(ng-click="restart()") restart
 
         md-content.md-padding(ng-if="failed.length > 0")
           md-list
@@ -28,14 +31,17 @@ html
         md-toolbar.blue-bg
           .md-toolbar-tools 
             .md-toolbar-item
-                span.md-flex Tests: {{tests}}
+              span.md-flex Tests: {{failed.length+data.length}}
+            span(flex)
+            .md-toolbar-item(ng-if="isRestartable&&failed.length == 0")
+              md-button.md-raised.md-flex(ng-click="restart()") restart
         md-content.md-padding
           tree-mendous(nodes="tree.branches")
             div(ng-repeat="branch in nodes") 
               div.branch
                 span(ng-repeat="lvl in branch.level")
                   span(ng-if="lvl>0") &nbsp; &nbsp; 
-                span.branchname{{branch.name}} 
+                span.branchname {{branch.name}} 
                   span(ng-if="branch.duration") ({{branch.duration}})
                 div.leaves(ng-if="branch.leaves.length >0")
                   br
@@ -54,6 +60,6 @@ html
                         span(ng-if="leaf.duration") ({{leaf.duration}})
               tree-branch(nodes="branch.branches")
       div.console(flex)
-        span.line(ng-repeat="string in console", ng-bind-html="string.text",ng-class="string.type") 
+        span.line(ng-repeat="string in console", ng-bind-html="string.html",ng-class="string.type") 
 
     script(src='bundle.js')
