@@ -61,6 +61,7 @@
     "watch:coffee": "nodemon -q -w ngapp_src/ --ext 'coffee' --exec 'coffee --bare --output ngapp/ --compile ngapp_src/*.coffee'",
     "watch:watchify": "watchify ngapp/index.js -d -t browserify-ngannotate -t browserify-css -p [minifyify --compressPath . --map index.js.map --output ngapp/index.js.map] -o ngapp/bundle.js",
     "watch:styles": "nodemon -q -w ngapp_src/ --ext 'styl' --exec 'npm run build:styles'",
-    "watch:markup": "nodemon -q -w ngapp_src/ --ext 'jade' --exec 'npm run build:markup'"
+    "watch:markup": "nodemon -q -w ngapp_src/ --ext 'jade' --exec 'npm run build:markup'",
+    "patch": "npm version patch;npm publish;git push;git push --tags"
   }
 }
