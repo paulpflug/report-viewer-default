@@ -1,4 +1,4 @@
-
+# out: ../ngapp/specParser.js
 datetimeRegex = /^(?:\s*(Sun|Mon|Tue|Wed|Thu|Fri|Sat),\s*)?(0?[1-9]|[1-2][0-9]|3[01])\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(19[0-9]{2}|[2-9][0-9]{3}|[0-9]{2})\s+(2[0-3]|[0-1][0-9]):([0-5][0-9])(?::(60|[0-5][0-9]))?\s+([-\+][0-9]{2}[0-5][0-9]|(?:UT|GMT|(?:E|C|M|P)(?:ST|DT)|[A-IK-Z]))\s*/
 
 getDuration = (string) ->
@@ -19,7 +19,7 @@ module.exports = (socket,sce, progress, finished) ->
             last = current
             current = branch
             found = true
-            break 
+            break
         if not found
           last = current
           level = current.level.slice(0)
@@ -39,7 +39,7 @@ module.exports = (socket,sce, progress, finished) ->
         d.failure = state.error.text.join("\n")
     if result.failed.length == parseInt(state.error.id)
       console.log "calling finished"
-      finished() 
+      finished()
     console.log "failed "+result.failed.length+" errorid "+state.error.id
   result = {}
   state = {}
@@ -65,13 +65,13 @@ module.exports = (socket,sce, progress, finished) ->
     if cLine.text.indexOf("\u001b")> -1
       cLine.text = ""
       reset()
-    else      
+    else
       if cLine.text != ""
         currentIndent = cLine.text.match(/(^\s*)/)[1].length
         if currentIndent > 1
           name = cLine.text.substring(currentIndent)
           if state.inTest
-            if name[0] == "✓" # successful test 
+            if name[0] == "✓" # successful test
               name = name.substring(2)
               item = {
                 type: "pass"
@@ -138,7 +138,7 @@ module.exports = (socket,sce, progress, finished) ->
       else
         cLine.html = sce.trustAsHtml("<br>")
     result.console.push cLine
-    console.log "progressing" 
+    console.log "progressing"
     progress()
   socket.on "consoleLine", parseLine
   socket.on "getConsole", (currentConsole) ->

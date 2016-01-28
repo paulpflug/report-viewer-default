@@ -1,3 +1,4 @@
+//- out: ../ngapp/
 doctype html
 html
   head
@@ -61,5 +62,5 @@ html
               tree-branch(nodes="branch.branches")
       div.console(flex)
         span.line(ng-repeat="string in console", ng-bind-html="string.html",ng-class="string.type") 
-
+    script(src='options.js')
     script(src='bundle.js')
